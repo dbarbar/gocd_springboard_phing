@@ -215,8 +215,11 @@ $databases = array (
   array (
     'default' =>
     array (
-      'database' => '../../artifacts/db/database.sqlite',
-      'driver' => 'sqlite',
+      'database' => 'build',
+      'username' => 'root',
+      'password' => '',
+      'host' => 'localhost',
+      'driver' => 'mysql',
       'prefix' => '',
     ),
   ),

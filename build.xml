@@ -2,7 +2,53 @@
 
 <project name="Springboard 4 GoCD" default="build" phingVersion="2.8.1">
 
-  <target name="package"
+<!-- ### Build project
+
+This is the default build target.
+
+@todo Add check-js-debug in above simpletest if we decide console.log in production code is bad.
+@todo Add lint-js-custom and lint-css-custom if we can make the dependencies easier.
+@todo Add simpltest for unit tests.
+@todo phploc, phpmd, phpcpd.  Need to fullfill dependencies.
+
+-->
+  <target name="build" depends="init,
+                                clean,
+                                prepare-build-file,
+                                make,
+                                lint-php-custom,
+                                check-php-debug,
+                                link-settings
+                                site-install,
+                                sql-dump,
+                                simpletest,
+                                unlink-settings,
+                                tar-code" />
+
+
+<!-- ## Individual targets
+These targets can be executed individually or grouped unless explicitly
+stated as a part of the task.
+
+**As a rule targets without descriptions should not be executed directly.** -->
+
+
+  <target name="sql-dump"
+    description="Dump the existing database to a sql file."
+    depends="setup-phing-drush">
+
+    <delete dir="artifacts/sql"/>
+    <mkdir dir="artifacts/sql" />
+    <drush command="sql-dump" assume="yes">
+
+      <option name="result-file">../sql/db.sql.gz</option>
+      <param>gzip</param>
+    </drush>
+
+  </target>
+
+  <target name="prepare-build-file"
+    description="Downloads build files and replaces sprinboard versions with 4.x."
     depends="setup-phing-drush">
 
     <httpget url="https://raw.githubusercontent.com/JacksonRiver/Springboard-Build/7.x-4.x/springboard-core.make"
@@ -40,16 +86,21 @@
       </filterchain>
     </reflexive>
 
-    <drush command="make" assume="yes">
-      <param>artifacts/springboard-mtsb.make</param>
-      <param>artifacts/src</param>
-    </drush>
-
   </target>
 
+  <target name="link-settings"
+          description="Creates a symlink to the settins.php file.">
+    <symlink target="../../../../resources/settings.php" link="artifacts/src/sites/default/settings.php" overwrite="true" />
+  </target>
 
-  <target name="tar"
-    depends="package">
+  <target name="unlink-settings"
+          description="Removes the symlink to the settings file.">
+    <delete file="artifacts/src/sites/default/settings.php" />
+  </target>
+
+  <target name="tar-code"
+          description="Makes a tar.gz file of the source code."
+          depends="package">
 
     <tar destfile="artifacts/springboard-7.x-4.x-mtsb.tar.gz"
          basedir="artifacts/src"
@@ -57,6 +108,9 @@
          includeemptydirs="true" />
 
   </target>
+
+
+
 
 
 
@@ -120,67 +174,6 @@
               verbose="true" />
 
   </target>
-
-
-<!-- ## Main targets -->
-
-<!-- ### Build project
-
-Do a complete build of the project by verifying code consistency and and
-performing static analysis of the code.
-
-This is the default build target.
-
-Do not run `docs` for now. Generating documentation eats up memory and build
-time and is largely obsolete when using GitHub.
-
-@todo Removed analyze
-
--->
-  <target name="build" depends="init,
-                                clean,
-                                package,
-                                verify,
-                                site-install,
-                                simpletest,
-                                tar" />
-
-<!-- ### Verify code consistency
-
-Make sure that our code is clean and functional.
-@todo Add check-js-debug, back in above simpletest if we decide console.log in production code is bad.
-
-@todo Add lint-js-custom and lint-css-custom if we can make the dependencies easier.
-@todo Add simpletest at the end.
--->
-  <target name="verify" depends="init,
-                                 clean,
-                                 lint-php-custom,
-                                 check-php-debug"
-                                 />
-
-<!-- ### Analyze code
-
-Perform static analysis of the code to generate statistics, identify potential
-problems and opportunities for refactorings and make sure that the code
-complies with coding standards.
-
-@todo None of this works.
-
--->
-  <target name="analyze" depends="init,
-                                  clean,
-                                  phploc,
-                                  phpmd,
-                                  phpcpd"
-                                  />
-
-
-<!-- ## Individual targets
-These targets can be executed individually or grouped unless explicitly
-stated as a part of the task.
-
-**As a rule targets without descriptions should not be executed directly.** -->
 
 <!-- ### PHP linting
 
@@ -875,35 +868,16 @@ in the `build.properties` file. Execution can also be skipped by setting the
 This is part of the initialization of the build. This target should only be
 called from `init` target. -->
   <target name="make"
-          depends="load-properties, setup-phing-drush"
-          if="drupal.make.file">
-    <if>
-      <or>
-        <not><isset property="project.make.skip"/></not>
-        <not><istrue value="${project.make.skip}"/></not>
-      </or>
-      <then>
-        <!-- Delete any prexisting builds -->
-        <delete dir="src"/>
+          depends="setup-phing-drush">
 
-        <!-- Make the project in the project code directory. If using
-             a directory inside the `sites` folder modules can be tested
-             faster and easier when using the minimal profile. -->
-        <drush command="make" assume="yes">
-          <param>artifacts/springboard-mtsb.make</param>
-          <param>src</param>
-        </drush>
+    <!-- Delete any prexisting builds -->
+    <delete dir="artifacts/src"/>
 
-        <!-- Set property to prevent target from being executed multiple times -->
-        <property name="project.make.skip" value="true"/>
-      </then>
-      <else>
-        <echo>
-          Skipping drush make.${line.separator}
-          drupal.make.skip has been set to ${project.make.skip}.
-        </echo>
-      </else>
-    </if>
+    <drush command="make" assume="yes">
+      <param>artifacts/springboard-mtsb.make</param>
+      <param>artifacts/src</param>
+    </drush>
+
   </target>
 
 <!-- ### Setup file sets
@@ -1044,13 +1018,10 @@ This initializes a Drupal site using a installation profile.
 Configuration of which installation profile and database to use in done in
 `build.properties`. -->
   <target name="site-install"
-          depends="setup-phing-drush"
+          depends="setup-phing-drush, link-settings"
           unless="project.installed">
-    <delete dir="artifacts/db" />
-    <mkdir dir="artifacts/db" />
-    <symlink target="../../../../resources/settings.php" link="artifacts/src/sites/default/settings.php" overwrite="true" />
+
     <drush command="site-install" assume="yes">
-      <!-- <option name="db-url">sqlite://../../artifacts/db/database.sqlite</option> -->
       <option name="account-name">admin</option>
       <option name="account-pass">4x</option>
       <option name="account-mail">david.barbarisi@jacksonriver.com</option>
@@ -1065,7 +1036,7 @@ Configuration of which installation profile and database to use in done in
     <chmod file="artifacts/src/sites/default/"
            mode="0755" failonerror="true"/>
     <chmod file="artifacts/src/sites/default/default.settings.php"
-           mode="0755" failonerror="true"/>
+           mode="0644" failonerror="true"/>
 
     <!-- Set property to prevent target from being executed multiple times -->
     <property name="project.installed" value="true"/>
