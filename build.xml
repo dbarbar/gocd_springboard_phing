@@ -5,9 +5,6 @@
   <target name="package"
     depends="setup-phing-drush">
 
-    <delete dir="artifacts"/>
-    <mkdir dir="artifacts" />
-
     <httpget url="https://raw.githubusercontent.com/JacksonRiver/Springboard-Build/7.x-4.x/springboard-core.make"
              dir="artifacts"
              sslVerifyPeer="false" />
@@ -1033,7 +1030,8 @@ called from `init` target. -->
     <!-- Delete any existing artifacts from a previous build.
          Do not delete builddir. It may contain the build file! -->
     <delete dir="artifacts"/>
-    <delete dir="src"/>
+    <mkdir dir="artifacts" />
+    <!-- <delete dir="src"/> -->
 
     <!-- Set property to prevent target from being executed multiple times -->
     <property name="project.cleaned" value="true"/>
