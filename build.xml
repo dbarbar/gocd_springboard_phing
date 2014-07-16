@@ -144,6 +144,8 @@ time and is largely obsolete when using GitHub.
                                 clean,
                                 package,
                                 verify,
+                                site-install,
+                                simpletest,
                                 tar" />
 
 <!-- ### Verify code consistency
@@ -690,7 +692,7 @@ Execution of this target can be skipped by setting the
 -->
   <target name="simpletest"
           description="Run all unit tests"
-          depends="init, setup-phing-drush, site-install"
+          depends="init, setup-phing-drush"
           unless="project.simpletest.skip">
     <!-- Enable simpletest module. If using Drupal 6 the module will be
          downloaded as well. -->
@@ -1033,16 +1035,6 @@ called from `init` target. -->
     <delete dir="artifacts"/>
     <delete dir="src"/>
 
-    <!-- Verbose. We need to make sure any database is deleted. Reinstalling
-         the site with an existing database causes the build to fail. -->
-    <delete file="${project.drupal.dir}/database.sqlite" verbose="true" />
-    <!-- Remove leftover Drupal simpletest databases -->
-    <delete>
-      <fileset dir="${project.basedir}">
-        <include name="database.sqlite-simpletest*"/>
-      </fileset>
-    </delete>
-
     <!-- Set property to prevent target from being executed multiple times -->
     <property name="project.cleaned" value="true"/>
   </target>
@@ -1054,18 +1046,27 @@ This initializes a Drupal site using a installation profile.
 Configuration of which installation profile and database to use in done in
 `build.properties`. -->
   <target name="site-install"
-          depends="init, setup-phing-drush, make"
+          depends="setup-phing-drush"
           unless="project.installed">
+    <delete dir="artifacts/db" />
+    <mkdir dir="artifacts/db" />
+    <symlink target="../../../../resources/settings.php" link="artifacts/src/sites/default/settings.php" overwrite="true" />
     <drush command="site-install" assume="yes">
-      <option name="db-url">${drupal.db.url}</option>
-      <param>${drupal.profile}</param>
+      <!-- <option name="db-url">sqlite://../../artifacts/db/database.sqlite</option> -->
+      <option name="account-name">admin</option>
+      <option name="account-pass">4x</option>
+      <option name="account-mail">david.barbarisi@jacksonriver.com</option>
+      <option name="clean-url">1</option>
+      <option name="site-mail">david.barbarisi@jacksonriver.com</option>
+      <option name="site-name">4x</option>
+      <param>sbsetup</param>
     </drush>
     <!-- Fix permissions for the default site directory and settings. The
          owner must be able to delete the directories during subsequent
          builds. -->
-    <chmod file="${project.drupal.dir}/sites/default/"
+    <chmod file="artifacts/src/sites/default/"
            mode="0755" failonerror="true"/>
-    <chmod file="${project.drupal.dir}/sites/default/default.settings.php"
+    <chmod file="artifacts/src/sites/default/default.settings.php"
            mode="0755" failonerror="true"/>
 
     <!-- Set property to prevent target from being executed multiple times -->
