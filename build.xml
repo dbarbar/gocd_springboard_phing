@@ -35,14 +35,10 @@ stated as a part of the task.
 
   <target name="sql-dump"
     description="Dump the existing database to a sql file."
-    depends="setup-phing-drush">
+    depends="setup-phing-drush, link-settings">
 
-    <delete dir="artifacts/sql"/>
-    <mkdir dir="artifacts/sql" />
     <drush command="sql-dump" assume="yes">
-
-      <option name="result-file">../sql/db.sql.gz</option>
-      <param>gzip</param>
+      <option name="result-file">../db.sql</option>
     </drush>
 
   </target>
@@ -100,7 +96,7 @@ stated as a part of the task.
 
   <target name="tar-code"
           description="Makes a tar.gz file of the source code."
-          depends="package">
+          depends="make, unlink-settings">
 
     <tar destfile="artifacts/springboard-7.x-4.x-mtsb.tar.gz"
          basedir="artifacts/src"
