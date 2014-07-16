@@ -18,7 +18,7 @@ This is the default build target.
                                 make,
                                 lint-php-custom,
                                 check-php-debug,
-                                link-settings
+                                link-settings,
                                 site-install,
                                 sql-dump,
                                 simpletest,
