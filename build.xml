@@ -98,6 +98,7 @@ stated as a part of the task.
           description="Makes a tar.gz file of the source code."
           depends="unlink-settings">
 
+    <delete dir="artifacts/src/sites/default/files" />
     <tar destfile="artifacts/springboard-7.x-4.x-mtsb.tar.gz"
          basedir="artifacts/src"
          compression="gzip"
