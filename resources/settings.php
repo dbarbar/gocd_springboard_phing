@@ -216,8 +216,8 @@ $databases = array (
     'default' =>
     array (
       'database' => 'build',
-      'username' => 'root',
-      'password' => '',
+      'username' => 'build',
+      'password' => 'build',
       'host' => 'localhost',
       'driver' => 'mysql',
       'prefix' => '',
