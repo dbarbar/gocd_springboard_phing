@@ -96,7 +96,7 @@ stated as a part of the task.
 
   <target name="tar-code"
           description="Makes a tar.gz file of the source code."
-          depends="make, unlink-settings">
+          depends="unlink-settings">
 
     <tar destfile="artifacts/springboard-7.x-4.x-mtsb.tar.gz"
          basedir="artifacts/src"
