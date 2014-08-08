@@ -21,9 +21,57 @@ This is the default build target.
                                 link-settings,
                                 site-install,
                                 sql-dump,
-                                simpletest,
                                 unlink-settings,
                                 tar-code" />
+
+  <target name="personal-build" depends="init">
+
+  </target>
+
+  <target name="commit-test" depends="init">
+
+  </target>
+
+  <target name="deploy" depends="init">
+
+    <!--
+      Deploy to options:
+      test,
+      uat,
+      showcase,
+      exploratory,
+      capacity
+    -->
+
+  </target>
+
+  <target name="deploy-test" depends="init">
+
+  </target>
+
+  <target name="quick-component-test" depends="init,
+                                enable-simpletest">
+    <!--
+      subset of simpletest testing.
+    -->
+
+  </target>
+
+  <target name="long-component-test" depends="init,
+                                enable-simpletest">
+    <!--
+      subset of simpletest testing.
+    -->
+
+  </target>
+
+  <target name="acceptance-test" depends="init">
+
+    <!--
+      codeception, behat, selenium, more words.
+    -->
+
+  </target>
 
 
 <!-- ## Individual targets
@@ -38,20 +86,21 @@ stated as a part of the task.
     depends="setup-phing-drush, link-settings">
 
     <drush command="sql-dump" assume="yes">
-      <option name="result-file">../db.sql</option>
+      <option name="gzip"></option>
+      <option name="result-file">../db-${springboard.build_number}.sql</option>
     </drush>
 
   </target>
 
   <target name="prepare-build-file"
-    description="Downloads build files and replaces sprinboard versions with 4.x."
+    description="Downloads build files and replaces springboard versions with commits."
     depends="setup-phing-drush">
 
-    <httpget url="https://raw.githubusercontent.com/JacksonRiver/Springboard-Build/7.x-4.x/springboard-core.make"
+    <httpget url="https://raw.githubusercontent.com/JacksonRiver/Springboard-Build/${springboard.build.commit}/springboard-core.make"
              dir="artifacts"
              sslVerifyPeer="false" />
 
-    <httpget url="https://raw.githubusercontent.com/JacksonRiver/Springboard-Build/7.x-4.x/springboard-mtsb.make"
+    <httpget url="https://raw.githubusercontent.com/JacksonRiver/Springboard-Build/${springboard.build.commit}/springboard-mtsb.make"
              dir="artifacts"
              sslVerifyPeer="false" />
 
@@ -64,19 +113,19 @@ stated as a part of the task.
       <replaceregexp>
         <regexp
           pattern="projects\[sbsetup\]\[download\]\[branch\] = (.+)"
-          replace="projects[sbsetup][download][branch] = 7.x-4.x"
+          replace="projects[sbsetup][download][branch] = ${springboard.profiles.commit}"
           />
         <regexp
           pattern="projects\[springboard_themes\]\[download\]\[branch\] = (.+)"
-          replace="projects[springboard_themes][download][branch] = 7.x-4.x"
+          replace="projects[springboard_themes][download][branch] = ${springboard.themes.commit}"
           />
         <regexp
           pattern="projects\[springboard\]\[download\]\[branch\] = (.+)"
-          replace="projects[springboard][download][branch] = 7.x-4.x"
+          replace="projects[springboard][download][branch] = ${springboard.modules.commit}"
           />
         <regexp
           pattern="projects\[encrypt\]\[patch\]\[\] = https://raw\.github\.com/JacksonRiver/Springboard\-Build/(.+)/patches/encrypt\-trim\-only\-decrypted\-output\.patch"
-          replace="projects[encrypt][patch][] = https://raw.github.com/JacksonRiver/Springboard-Build/7.x-4.x/patches/encrypt-trim-only-decrypted-output.patch"
+          replace="projects[encrypt][patch][] = https://raw.github.com/JacksonRiver/Springboard-Build/${springboard.build.commit}/patches/encrypt-trim-only-decrypted-output.patch"
           />
         </replaceregexp>
       </filterchain>
@@ -99,7 +148,7 @@ stated as a part of the task.
           depends="unlink-settings">
 
     <delete dir="artifacts/src/sites/default/files" />
-    <tar destfile="artifacts/springboard-7.x-4.x-mtsb.tar.gz"
+    <tar destfile="artifacts/springboard-${springboard.build_number}.tar.gz"
          basedir="artifacts/src"
          compression="gzip"
          includeemptydirs="true" />
@@ -672,6 +721,14 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
             logoutput="true" />
     </target>
 
+
+  <target name="enable-simpletest" depends="init">
+    <phingcall target="enable-module">
+      <property name="module" value="simpletest"/>
+    </phingcall>
+  </target>
+
+
   <!-- ### Run simpletests
 
 Execution of this target can be skipped by setting the
@@ -679,7 +736,7 @@ Execution of this target can be skipped by setting the
 -->
   <target name="simpletest"
           description="Run all unit tests"
-          depends="init, setup-phing-drush"
+          depends="init, setup-phing-drush, enable-simpletest"
           unless="project.simpletest.skip">
     <!-- Enable simpletest module. If using Drupal 6 the module will be
          downloaded as well. -->
@@ -871,8 +928,8 @@ called from `init` target. -->
     <delete dir="artifacts/src"/>
 
     <drush command="make" assume="yes">
-      <param>artifacts/springboard-mtsb.make</param>
-      <param>artifacts/src</param>
+      <param>${drupal.make.file}</param>
+      <param>${drupal.make.dir}</param>
     </drush>
 
   </target>
@@ -1019,12 +1076,12 @@ Configuration of which installation profile and database to use in done in
           unless="project.installed">
 
     <drush command="site-install" assume="yes">
-      <option name="account-name">admin</option>
-      <option name="account-pass">4x</option>
-      <option name="account-mail">david.barbarisi@jacksonriver.com</option>
-      <option name="clean-url">1</option>
-      <option name="site-mail">david.barbarisi@jacksonriver.com</option>
-      <option name="site-name">4x</option>
+      <option name="account-name">${drupal.account_name}</option>
+      <option name="account-pass">${drupal.account_pass}</option>
+      <option name="account-mail">${drupal.account_mail}</option>
+      <option name="clean-url">${drupal.clean_url}</option>
+      <option name="site-mail">${drupal.site_mail}</option>
+      <option name="site-name">${drupal.site_name}</option>
       <param>sbsetup</param>
     </drush>
     <!-- Fix permissions for the default site directory and settings. The
