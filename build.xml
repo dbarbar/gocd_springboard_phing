@@ -32,7 +32,9 @@ This is the default build target.
 
   </target>
 
-  <target name="deploy" depends="init">
+  <target name="deploy" depends="init,
+                                deploy-code,
+                                deploy-db">
 
     <!--
       Deploy to options:
@@ -157,10 +159,17 @@ stated as a part of the task.
 
 
 
+  <target name="deploy-db"
+          depends="init,
+                  setup-phing-drush">
 
+    <exec command="zcat sql/db-${springboard.version}.sql.gz | drush @${drupal.site_alias} sql-cli"
+      checkreturn="true"
+      logoutput="true" />
 
+  </target>
 
-  <target name="deploy"
+  <target name="deploy-code"
           depends="init"
           description="Deploys a Springboard package to a destination server">
 

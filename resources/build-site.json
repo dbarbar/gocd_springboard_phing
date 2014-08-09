@@ -1,0 +1,33 @@
+{
+  "id": "build",
+  "fullname": "Build",
+  "environments": {
+    "_default": {
+      "release_url": "file:///some/path/__RELEASETAG__.tar.gz",
+      "release_namespace": "custom/example",
+      "docroot": "/var/www/html",
+      "site_dir": "/var/www/html/sites/default",
+      "db_password": "build",
+      "settings_php_conf": {
+        "custom_variable_name": "custom_variable_value",
+        "custom_variable_name2": "custom_variable_value2"
+      },
+      "canonical_domain": "localhost",
+      "domains": {
+        "localhost": {
+          "basic_auth_user": "build",
+          "basic_auth_pass": "build",
+          "ssl_certificate": "wildcard",
+          "server_ip": [ "127.0.0.1" ],
+          "server_port": "80",
+          "server_ip_ssl": [ "127.0.0.1" ],
+          "server_port_ssl": "443",
+          "redirect_all_to_ssl": true,
+          "redirect_all_to_domain": true,
+        },
+      },
+      "drupal_hash_salt": "abcdefghijklmnopqrstuvwxyz0123456789-------",
+      "encrypt_key": "1234567891234567891234567891234567891234567891234567891234567890"
+    }
+  }
+}
