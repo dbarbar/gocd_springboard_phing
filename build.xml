@@ -173,7 +173,7 @@ stated as a part of the task.
           depends="init">
 
 
-    <scp username="root" password="vagrant" host="192.168.34.12" todir="/var/www/springboard-releases" file="artifacts/springboard-${springboard.version}.tar.gz" />
+    <scp username="root" password="vagrant" host="192.168.34.12" todir="/var/www/springboard-releases" file="../src/springboard-${springboard.version}.tar.gz" />
 
   </target>
 
