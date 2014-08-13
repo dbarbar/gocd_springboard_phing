@@ -169,6 +169,14 @@ stated as a part of the task.
 
   </target>
 
+  <target name="copy-package"
+          depends="init">
+
+
+    <scp username="root" password="vagrant" host="192.168.34.12" todir="/var/www/springboard-releases" file="artifacts/springboard-${springboard.version}.tar.gz" />
+
+  </target>
+
   <target name="deploy-code"
           depends="init"
           description="Deploys a Springboard package to a destination server">
@@ -229,6 +237,40 @@ stated as a part of the task.
               verbose="true" />
 
   </target>
+
+
+<target name="create-data-bag-json"
+        description="Creates the json file for the data bag."
+        depends="init">
+  <copy file="resources/build-site.json"
+        tofile="artifacts/${springboard.build_number}.json"
+        overwrite="true">
+    <filterchain>
+      <replacetokens begintoken="%" endtoken="%">
+        <token key="ID" value="${springboard.version}" />
+        <token key="DOMAIN" value="${springboard.deploy.domain}" />
+        <token key="DB_PASSWORD" value="${springboard.db_password}" />
+        <token key="RELEASE_URL" value="${springboard.deploy.destination}" />
+        <token key="BASIC_AUTH_USER" value="${springboard.basic_auth_user}" />
+        <token key="BASIC_AUTH_PASS" value="${springboard.basic_auth_pass}" />
+      </replacetokens>
+    </filterchain>
+  </copy>
+</target>
+
+<target name="import-data-bag"
+        depends="init">
+      <copy file="artifacts/${springboard.build_number}.json"
+        tofile="/vagrant/data_bags/${springboard.build_number}.json"
+        overwrite="true" />
+</target>
+
+<target name="remote-chef-client"
+        depends="init">
+
+    <ssh username="root" password="vagrant" host="192.168.34.12" command="chef-client" />
+</target>
+
 
 <!-- ### PHP linting
 

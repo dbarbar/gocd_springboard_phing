@@ -1,22 +1,22 @@
 {
-  "id": "build",
-  "fullname": "Build",
+  "id": "%ID%",
+  "fullname": "%ID%",
   "environments": {
     "_default": {
-      "release_url": "file:///some/path/__RELEASETAG__.tar.gz",
+      "release_url": "%RELEASE_URL%",
       "release_namespace": "custom/example",
       "docroot": "/var/www/html",
       "site_dir": "/var/www/html/sites/default",
-      "db_password": "build",
+      "db_password": "%DB_PASSWORD%",
       "settings_php_conf": {
         "custom_variable_name": "custom_variable_value",
         "custom_variable_name2": "custom_variable_value2"
       },
-      "canonical_domain": "localhost",
+      "canonical_domain": "%DOMAIN%",
       "domains": {
-        "localhost": {
-          "basic_auth_user": "build",
-          "basic_auth_pass": "build",
+        "%DOMAIN%": {
+          "basic_auth_user": "%BASIC_AUTH_USER%",
+          "basic_auth_pass": "%BASIC_AUTH_PASS%",
           "ssl_certificate": "wildcard",
           "server_ip": [ "127.0.0.1" ],
           "server_port": "80",
