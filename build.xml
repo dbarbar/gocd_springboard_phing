@@ -172,8 +172,7 @@ stated as a part of the task.
   <target name="copy-package"
           depends="init">
 
-
-    <scp username="root" password="vagrant" host="192.168.34.12" todir="/var/www/springboard-releases" file="../src/springboard-${springboard.version}.tar.gz" />
+    <exec command="scp ../src/springboard-${springboard.version}.tar.gz ${springboard.deploy.remote_host}:/var/www/springboard-releases" />
 
   </target>
 
@@ -268,7 +267,8 @@ stated as a part of the task.
 <target name="remote-chef-client"
         depends="init">
 
-    <ssh username="root" password="vagrant" host="192.168.34.12" command="chef-client" />
+  <exec command="ssh ${springboard.deploy.remote_host} chef-client" />
+
 </target>
 
 
