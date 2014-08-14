@@ -172,7 +172,9 @@ stated as a part of the task.
   <target name="copy-package"
           depends="init">
 
-    <exec command="scp ../src/springboard-${springboard.version}.tar.gz ${springboard.deploy.remote_host}:/var/www/springboard-releases" />
+    <exec command="scp ../src/springboard-*.tar.gz ${springboard.deploy.remote_host}:/var/www/springboard-releases"
+          logout="true"
+          checkreturn="true" />
 
   </target>
 
@@ -260,7 +262,7 @@ stated as a part of the task.
 <target name="import-data-bag"
         depends="init">
       <copy file="artifacts/${springboard.build_number}.json"
-        tofile="/vagrant/data_bags/${springboard.build_number}.json"
+        tofile="/vagrant/data_bags/hosted-clients/${springboard.build_number}.json"
         overwrite="true" />
 </target>
 
