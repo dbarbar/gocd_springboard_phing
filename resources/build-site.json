@@ -23,8 +23,8 @@
           "server_ip_ssl": [ "127.0.0.1" ],
           "server_port_ssl": "443",
           "redirect_all_to_ssl": true,
-          "redirect_all_to_domain": true,
-        },
+          "redirect_all_to_domain": true
+        }
       },
       "drupal_hash_salt": "abcdefghijklmnopqrstuvwxyz0123456789-------",
       "encrypt_key": "1234567891234567891234567891234567891234567891234567891234567890"
