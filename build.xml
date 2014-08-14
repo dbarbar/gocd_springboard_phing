@@ -173,7 +173,7 @@ stated as a part of the task.
           depends="init">
 
     <exec command="scp ../src/springboard-*.tar.gz ${springboard.deploy.remote_host}:/var/www/springboard-releases"
-          logout="true"
+          logoutput="true"
           checkreturn="true" />
 
   </target>
