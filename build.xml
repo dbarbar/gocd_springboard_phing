@@ -269,7 +269,9 @@ stated as a part of the task.
 <target name="remote-chef-client"
         depends="init">
 
-  <exec command="ssh ${springboard.deploy.remote_host} chef-client" />
+  <exec command="ssh ${springboard.deploy.remote_host} chef-client"
+          logoutput="true"
+          checkreturn="true" />
 
 </target>
 
