@@ -251,7 +251,8 @@ stated as a part of the task.
         <token key="ID" value="${springboard.version}" />
         <token key="DOMAIN" value="${springboard.deploy.domain}" />
         <token key="DB_PASSWORD" value="${springboard.db_password}" />
-        <token key="RELEASE_URL" value="${springboard.deploy.destination}" />
+        <token key="RELEASE_URL" value="${springboard.deploy.destination}/springboard-${springboard.version}.tar.gz" />
+        <token key="RELEASE_TAG" value="${springboard.version}" />
         <token key="BASIC_AUTH_USER" value="${springboard.basic_auth_user}" />
         <token key="BASIC_AUTH_PASS" value="${springboard.basic_auth_pass}" />
       </replacetokens>
@@ -261,6 +262,7 @@ stated as a part of the task.
 
 <target name="import-data-bag"
         depends="init">
+      <delete file="/vagrant/data_bags/hosted-clients/*.json" />
       <copy file="artifacts/${springboard.build_number}.json"
         tofile="/vagrant/data_bags/hosted-clients/${springboard.build_number}.json"
         overwrite="true" />
@@ -268,7 +270,7 @@ stated as a part of the task.
 
 <target name="remote-chef-client"
         depends="init">
-
+<!-- Doesn't work -->
   <exec command="ssh ${springboard.deploy.remote_host} chef-client"
           logoutput="true"
           checkreturn="true" />

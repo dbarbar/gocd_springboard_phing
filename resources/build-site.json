@@ -3,11 +3,11 @@
   "fullname": "%ID%",
   "environments": {
     "_default": {
-      "release_url": "file://%RELEASE_URL%",
+      "release_url": "%RELEASE_URL%",
       "release_tag": "%ID%",
       "release_namespace": "custom/example",
-      "docroot": "/var/www/html",
-      "site_dir": "/var/www/html/sites/default",
+      "docroot": "/var/www/%ID%",
+      "site_dir": "/var/www/%ID%/sites/default",
       "db_password": "%DB_PASSWORD%",
       "settings_php_conf": {
         "custom_variable_name": "custom_variable_value",
@@ -18,7 +18,6 @@
         "%DOMAIN%": {
           "basic_auth_user": "%BASIC_AUTH_USER%",
           "basic_auth_pass": "%BASIC_AUTH_PASS%",
-          "ssl_certificate": "wildcard",
           "server_ip": [ "127.0.0.1" ],
           "server_port": "80",
           "server_ip_ssl": [ "127.0.0.1" ],
