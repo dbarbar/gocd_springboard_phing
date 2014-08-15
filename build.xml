@@ -163,7 +163,7 @@ stated as a part of the task.
           depends="init,
                   setup-phing-drush">
 
-    <exec command="zcat sql/db-${springboard.version}.sql.gz | drush @${drupal.site_alias} sql-cli"
+    <exec command="zcat ../sql/db-${springboard.version}.sql.gz | drush @${drupal.site_alias} sql-cli"
       checkreturn="true"
       logoutput="true" />
 
