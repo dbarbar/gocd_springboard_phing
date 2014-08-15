@@ -239,6 +239,23 @@ stated as a part of the task.
 
   </target>
 
+<target name="create-site-alias"
+  description="Creates the alises.drushrc.php file and puts it in place."
+  depends="init">
+
+  <copy file="resources/aliases.drushrc.php"
+        tofile="~/.drush/aliases.drushrc.php"
+        overwrite="true">
+    <filterchain>
+      <replacetokens begintoken="%" endtoken="%">
+        <token key="ALIAS" value="${drupal.site_alias}" />
+        <token key="ROOT" value="/var/www/hosted-clients/${springboard.version}" />
+        <token key="URI" value="${drupal.uri}" />
+      </replacetokens>
+    </filterchain>
+  </copy>
+
+</target>
 
 <target name="create-data-bag-json"
         description="Creates the json file for the data bag."
