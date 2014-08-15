@@ -806,6 +806,25 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
     </phingcall>
   </target>
 
+  <target name="simple-simpletest"
+    depends="init">
+    <exec command="drush @${drupal.site_alias} en simpletest -y"
+      checkreturn="true"
+      logoutput="true" />
+    <exec command="drush @${drupal.site_alias} test-run XMLRPCBasicTestCase --xml=/root/tests"
+      checkreturn="true"
+      logoutput="true" />
+    <exec command="scp -r ${springboard.deploy.remote_host}:/root/tests artifacts"
+      checkreturn="true"
+      logoutput="true" />
+    <exec command="drush @${drupal.site_alias} dis simpletest -y"
+      checkreturn="true"
+      logoutput="true" />
+    <exec command="drush @${drupal.site_alias} pm-uninstall simpletest -y"
+      checkreturn="true"
+      logoutput="true" />
+
+  </target>
 
   <!-- ### Run simpletests
 
