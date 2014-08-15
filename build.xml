@@ -808,6 +808,9 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
   <target name="simple-simpletest"
     depends="init">
+    <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf tests; mkdir tests'"
+      checkreturn="true"
+      logoutput="true" />
     <exec command="drush @${drupal.site_alias} en simpletest -y"
       checkreturn="true"
       logoutput="true" />
