@@ -3,7 +3,8 @@
   "fullname": "%ID%",
   "environments": {
     "_default": {
-      "release_url": "%RELEASE_URL%",
+      "release_url": "file://%RELEASE_URL%",
+      "release_tag": "%ID%",
       "release_namespace": "custom/example",
       "docroot": "/var/www/html",
       "site_dir": "/var/www/html/sites/default",
