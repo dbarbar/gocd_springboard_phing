@@ -262,7 +262,11 @@ stated as a part of the task.
 
 <target name="import-data-bag"
         depends="init">
-      <delete file="/vagrant/data_bags/hosted-clients/*.json" />
+      <delete>
+        <fileset dir="/vagrant/data_bags/hosted-clients">
+          <include name="*.json" />
+        </fileset>
+      </delete>
       <copy file="artifacts/${springboard.build_number}.json"
         tofile="/vagrant/data_bags/hosted-clients/${springboard.build_number}.json"
         overwrite="true" />
