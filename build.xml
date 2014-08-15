@@ -244,7 +244,7 @@ stated as a part of the task.
   depends="init">
 
   <copy file="resources/aliases.drushrc.php"
-        tofile="~/.drush/aliases.drushrc.php"
+        tofile="/var/go/.drush/aliases.drushrc.php"
         overwrite="true">
     <filterchain>
       <replacetokens begintoken="%" endtoken="%">
