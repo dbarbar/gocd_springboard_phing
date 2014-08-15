@@ -811,7 +811,7 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
     <exec command="drush @${drupal.site_alias} en simpletest -y"
       checkreturn="true"
       logoutput="true" />
-    <exec command="drush @${drupal.site_alias} test-run XMLRPCBasicTestCase --xml=/root/tests"
+    <exec command="drush @${drupal.site_alias} test-run ${springboard.tests} --xml=/root/tests"
       checkreturn="true"
       logoutput="true" />
     <exec command="scp -r ${springboard.deploy.remote_host}:/root/tests artifacts"
