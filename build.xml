@@ -816,6 +816,9 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
   <target name="simple-simpletest"
     depends="init">
+
+    <delete dir="artifacts/tests" />
+    <mkdir dir="artifacts/tests" />
     <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/tests/${springboard.version} ; mkdir -p /root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
@@ -825,7 +828,7 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run ${springboard.tests} --xml=/root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
-    <exec command="scp -r ${springboard.deploy.remote_host}:/root/tests/${springboard.version} artifacts"
+    <exec command="scp -r ${springboard.deploy.remote_host}:/root/tests/${springboard.version} artifacts/tests"
       checkreturn="true"
       logoutput="true" />
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} dis simpletest -y ; drush @${springboard.version} pm-uninstall simpletest -y'"
