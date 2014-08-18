@@ -95,8 +95,7 @@ stated as a part of the task.
   </target>
 
   <target name="prepare-build-file"
-    description="Downloads build files and replaces springboard versions with commits."
-    depends="setup-phing-drush">
+    description="Downloads build files and replaces springboard versions with commits.">
 
     <httpget url="https://raw.githubusercontent.com/JacksonRiver/Springboard-Build/${springboard.build.commit}/springboard-core.make"
              dir="artifacts"
@@ -163,7 +162,16 @@ stated as a part of the task.
           depends="init,
                   setup-phing-drush">
 
-    <exec command="zcat ../sql/db-${springboard.version}.sql.gz | drush @${drupal.site_alias} sql-cli"
+    <exec command="ssh ${springboard.deploy.remote_host} 'mkdir /root/sql'"
+      checkreturn="true"
+      logoutput="true" />
+    <exec command="scp ../sql/db-${springboard.version}.sql.gz ${springboard.deploy.remote_host}:/root/sql/"
+      checkreturn="true"
+      logoutput="true" />
+    <exec command="ssh ${springboard.deploy.remote_host} 'zcat /root/sql/db-${springboard.version}.sql.gz | drush @${springboard.version} sql-cli'"
+      checkreturn="true"
+      logoutput="true" />
+    <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/sql'"
       checkreturn="true"
       logoutput="true" />
 
@@ -172,7 +180,7 @@ stated as a part of the task.
   <target name="copy-package"
           depends="init">
 
-    <exec command="scp ../src/springboard-*.tar.gz ${springboard.deploy.remote_host}:/var/www/springboard-releases"
+    <exec command="scp ../src/springboard-${springboard.version}.tar.gz ${springboard.deploy.remote_host}:/var/www/springboard-releases"
           logoutput="true"
           checkreturn="true" />
 
@@ -242,7 +250,7 @@ stated as a part of the task.
 <target name="create-site-alias"
   description="Creates the alises.drushrc.php file and puts it in place."
   depends="init">
-
+<!--
   <copy file="resources/aliases.drushrc.php"
         tofile="/var/go/.drush/aliases.drushrc.php"
         overwrite="true">
@@ -254,14 +262,14 @@ stated as a part of the task.
       </replacetokens>
     </filterchain>
   </copy>
-
+-->
 </target>
 
 <target name="create-data-bag-json"
         description="Creates the json file for the data bag."
         depends="init">
   <copy file="resources/build-site.json"
-        tofile="artifacts/${springboard.build_number}.json"
+        tofile="artifacts/${springboard.version}.json"
         overwrite="true">
     <filterchain>
       <replacetokens begintoken="%" endtoken="%">
@@ -808,22 +816,19 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
   <target name="simple-simpletest"
     depends="init">
-    <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf tests; mkdir tests'"
+    <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/tests/${springboard.version} ; mkdir -p /root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
-    <exec command="drush @${drupal.site_alias} en simpletest -y"
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} en simpletest -y'"
       checkreturn="true"
       logoutput="true" />
-    <exec command="drush @${drupal.site_alias} test-run ${springboard.tests} --xml=/root/tests"
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run ${springboard.tests} --xml=/root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
-    <exec command="scp -r ${springboard.deploy.remote_host}:/root/tests artifacts"
+    <exec command="scp -r ${springboard.deploy.remote_host}:/root/tests/${springboard.version} artifacts"
       checkreturn="true"
       logoutput="true" />
-    <exec command="drush @${drupal.site_alias} dis simpletest -y"
-      checkreturn="true"
-      logoutput="true" />
-    <exec command="drush @${drupal.site_alias} pm-uninstall simpletest -y"
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} dis simpletest -y ; drush @${springboard.version} pm-uninstall simpletest -y'"
       checkreturn="true"
       logoutput="true" />
 
