@@ -162,7 +162,7 @@ stated as a part of the task.
           depends="init,
                   setup-phing-drush">
 
-    <exec command="ssh ${springboard.deploy.remote_host} 'mkdir /root/sql'"
+    <exec command="ssh ${springboard.deploy.remote_host} 'mkdir -p /root/sql'"
       checkreturn="true"
       logoutput="true" />
     <exec command="scp ../sql/db-${springboard.version}.sql.gz ${springboard.deploy.remote_host}:/root/sql/"
