@@ -279,7 +279,7 @@ stated as a part of the task.
 <target name="remove-data-bag"
         depends="init">
 
-      <exec command="knife data bag delete hosted-clients ${springboard.version}"
+      <exec command="knife data bag delete hosted-clients ${springboard.version} -y"
         logoutput="true"
         checkreturn="true" />
 
