@@ -287,20 +287,26 @@ stated as a part of the task.
 
 <target name="import-data-bag"
         depends="init">
-      <delete>
-        <fileset dir="/vagrant/data_bags/hosted-clients">
-          <include name="*.json" />
-        </fileset>
-      </delete>
-      <copy file="artifacts/${springboard.build_number}.json"
-        tofile="/vagrant/data_bags/hosted-clients/${springboard.build_number}.json"
-        overwrite="true" />
+
+      <exec command="knife data bag from file hosted-clients artifacts/${springboard.version}.json"
+        logoutput="true"
+        checkreturn="true" />
+
+</target>
+
+<target name="remove-data-bag"
+        depends="init">
+
+      <exec command="knife data bag delete hosted-clients ${springboard.version}"
+        logoutput="true"
+        checkreturn="true" />
+
 </target>
 
 <target name="remote-chef-client"
         depends="init">
-<!-- Doesn't work -->
-  <exec command="ssh ${springboard.deploy.remote_host} chef-client"
+
+  <exec command="ssh ${springboard.deploy.remote_host} chef-client -c /etc/chef/knife.rb"
           logoutput="true"
           checkreturn="true" />
 
