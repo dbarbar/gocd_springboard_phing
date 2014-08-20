@@ -47,7 +47,11 @@ This is the default build target.
 
   </target>
 
-  <target name="deploy-test" depends="init">
+  <target name="deploy-smoke-test" depends="init">
+    <echo msg="Checking http://${springboard.deploy.domain} for the text '${springboard.deploy.smoke_test_text}'" />
+    <exec command="curl --max-time 10 http://${springboard.deploy.domain} | grep '${springboard.deploy.smoke_test_text}'"
+      logoutput="true"
+      checkreturn="true" />
 
   </target>
 
