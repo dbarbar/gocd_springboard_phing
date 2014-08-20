@@ -966,6 +966,15 @@ tools. -->
         <!-- Load the overriding properties. -->
         <property file="${project.properties.file}" override="true" />
 
+        <!-- Sanitize the domain name by removing periods from the version string. -->
+        <php function="str_replace" returnProperty="springboard.version.normalized">
+          <param value="." />
+          <param value="-" />
+          <param value="${springboard.version}" />
+        </php>
+
+        <property name="springboard.deploy.domain" value="${springboard.version.normalized}.${springboard.deploy.domain_suffix}" />
+
         <!-- Set property to prevent unnecessary additional invocations of this target -->
         <property name="project.properties.loaded" value="true" />
       </then>
