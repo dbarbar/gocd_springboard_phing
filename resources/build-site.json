@@ -16,13 +16,6 @@
       "canonical_domain": "%DOMAIN%",
       "domains": {
         "%DOMAIN%": {
-          "basic_auth_user": "%BASIC_AUTH_USER%",
-          "basic_auth_pass": "%BASIC_AUTH_PASS%",
-          "server_ip": [ "127.0.0.1" ],
-          "server_port": "80",
-          "server_ip_ssl": [ "127.0.0.1" ],
-          "server_port_ssl": "443",
-          "redirect_all_to_ssl": true,
           "redirect_all_to_domain": true
         }
       },
