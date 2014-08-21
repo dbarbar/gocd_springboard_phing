@@ -829,6 +829,27 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
   </target>
 
+  <target name="fail-on-test-failures"
+    depends="init">
+
+    <exec command="cat artifacts/tests/*.xml | grep -c 'failure message'"
+      logoutput="false"
+      outputProperty="failures"
+      checkreturn="true" />
+
+    <if>
+      <not>
+        <equals arg1="${failures}" arg2="0" />
+      </not>
+      <then>
+        <property name="shouldfail" value="true" />
+      </then>
+    </if>
+
+    <fail if="shouldfail" message="${failures} test failures" />
+
+  </target>
+
   <!-- ### Run simpletests
 
 Execution of this target can be skipped by setting the
