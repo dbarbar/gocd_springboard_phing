@@ -47,6 +47,13 @@ This is the default build target.
 
   </target>
 
+  <target name="report">
+    <phpunitreport infile="artifacts/tests/testsuites.xml"
+      format="noframes"
+      todir="reports"
+      usesorttable="true" />
+  </target>
+
   <target name="deploy-smoke-test" depends="init">
     <echo msg="Checking http://${springboard.deploy.domain} for the text '${springboard.deploy.smoke_test_text}'" />
     <exec command="curl --max-time 10 http://${springboard.deploy.domain} | grep '${springboard.deploy.smoke_test_text}'"
@@ -847,6 +854,29 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
     </if>
 
     <fail if="shouldfail" message="${failures} test failures" />
+
+  </target>
+
+  <target name="codecept-run"
+    depends="init" >
+
+    <reflexive>
+    <fileset dir="../acceptance-tests/tests">
+      <include pattern="acceptance.suite.yml" />
+    </fileset>
+    <filterchain>
+      <replaceregexp>
+        <regexp
+          pattern="url: (.+)"
+          replace="url: http://${springboard.deploy.domain}"
+          />
+        </replaceregexp>
+      </filterchain>
+    </reflexive>
+
+    <exec command="../acceptance-tests/vendor/bin/codecept run --html --xml"
+      checkreturn="true"
+      logoutput="true" />
 
   </target>
 
