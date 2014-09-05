@@ -2,7 +2,7 @@
   "id": "%ID%",
   "fullname": "%ID%",
   "environments": {
-    "_default": {
+    "production": {
       "release_url": "%RELEASE_URL%",
       "release_tag": "%ID%",
       "release_namespace": "custom/example",
