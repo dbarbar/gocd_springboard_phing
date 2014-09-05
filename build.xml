@@ -32,20 +32,24 @@ This is the default build target.
 
   </target>
 
-  <target name="deploy" depends="init,
-                                deploy-code,
-                                deploy-db">
+  <target name="deploy-to-test-env" depends="init,
+                                copy-package,
+                                create-data-bag-json,
+                                import-data-bag,
+                                remote-chef-client,
+                                deploy-db,
+                                deploy-smoke-test">
+
+  </target>
 
     <!--
-      Deploy to options:
+      Eventual deploy to environment options:
       test,
       uat,
       showcase,
       exploratory,
       capacity
     -->
-
-  </target>
 
   <target name="report">
     <phpunitreport infile="artifacts/tests/testsuites.xml"
@@ -271,8 +275,6 @@ stated as a part of the task.
         <token key="DB_PASSWORD" value="${springboard.db_password}" />
         <token key="RELEASE_URL" value="${springboard.deploy.destination}/springboard-${springboard.version}.tar.gz" />
         <token key="RELEASE_TAG" value="${springboard.version}" />
-        <token key="BASIC_AUTH_USER" value="${springboard.basic_auth_user}" />
-        <token key="BASIC_AUTH_PASS" value="${springboard.basic_auth_pass}" />
       </replacetokens>
     </filterchain>
   </copy>
