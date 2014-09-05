@@ -571,4 +571,3 @@ $conf['allow_authorize_operations'] = FALSE;
 $conf['cron_safe_threshold'] = FALSE;
 $conf['salesforce_queue_cron_enabled'] = FALSE;
 $conf['fundraiser_standalone_cron_enabled'] = TRUE;
-
