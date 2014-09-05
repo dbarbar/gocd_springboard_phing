@@ -883,7 +883,7 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
     Not sure why it needs to run this way,
     aside from missing execute permission, but it works.
     -->
-    <exec command="php ../acceptance-tests/vendor/codeception/codeception/codecept run --html --xml"
+    <exec command="cd ../acceptance-tests ; php vendor/codeception/codeception/codecept run --html --xml"
       checkreturn="true"
       logoutput="true" />
 
