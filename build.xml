@@ -879,7 +879,11 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
       </filterchain>
     </reflexive>
 
-    <exec command="../acceptance-tests/vendor/bin/codecept run --html --xml"
+    <!--
+    Not sure why it needs to run this way,
+    aside from missing execute permission, but it works.
+    -->
+    <exec command="php ../acceptance-tests/vendor/codeception/codeception/codecept run --html --xml"
       checkreturn="true"
       logoutput="true" />
 
