@@ -66,19 +66,9 @@ This is the default build target.
 
   </target>
 
-  <target name="quick-component-test" depends="init,
-                                enable-simpletest">
-    <!--
-      subset of simpletest testing.
-    -->
-
-  </target>
-
-  <target name="long-component-test" depends="init,
-                                enable-simpletest">
-    <!--
-      subset of simpletest testing.
-    -->
+  <target name="component-tests" depends="init,
+                                simple-simpletest,
+                                fail-on-test-failures">
 
   </target>
 
