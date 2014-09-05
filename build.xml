@@ -72,11 +72,8 @@ This is the default build target.
 
   </target>
 
-  <target name="acceptance-test" depends="init">
-
-    <!--
-      codeception, behat, selenium, more words.
-    -->
+  <target name="acceptance-tests" depends="init,
+                                codecept-run">
 
   </target>
 
