@@ -839,10 +839,15 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
   <target name="fail-on-test-failures"
     depends="init">
 
+    <!--
+    Very important that we don't check the exit code here (checkreturn).
+    All tests passing would be a exit code of 1 (string not found)
+    but an output value of 0.
+    -->
     <exec command="cat artifacts/tests/${springboard.version}/*.xml | grep -c 'failure message'"
       logoutput="false"
       outputProperty="failures"
-      checkreturn="true" />
+      checkreturn="false" />
 
     <if>
       <not>
