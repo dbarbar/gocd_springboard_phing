@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="Springboard 4 GoCD" default="build" phingVersion="2.8.1">
+<project name="Springboard 4 Build scripts" default="build" phingVersion="2.8.1">
 
 <!-- ### Build project
 
@@ -8,21 +8,22 @@ This is the default build target.
 
 @todo Add check-js-debug in above simpletest if we decide console.log in production code is bad.
 @todo Add lint-js-custom and lint-css-custom if we can make the dependencies easier.
-@todo Add simpltest for unit tests.
-@todo phploc, phpmd, phpcpd.  Need to fullfill dependencies.
+@todo phploc, phpmd, phpcpd. Maybe. Need to fullfill dependencies.
 
 -->
-  <target name="build" depends="init,
-                                clean,
-                                prepare-build-file,
-                                make,
-                                lint-php-custom,
-                                check-php-debug,
-                                link-settings,
-                                site-install,
-                                sql-dump,
-                                unlink-settings,
-                                tar-code" />
+  <target name="build"
+    description="Gets the code, lints it, runs drush make, site install, dumps the SQL, and tars the code."
+    depends="init,
+              clean,
+              prepare-build-file,
+              make,
+              lint-php-custom,
+              check-php-debug,
+              link-settings,
+              site-install,
+              sql-dump,
+              unlink-settings,
+              tar-code" />
 
   <target name="personal-build" depends="init">
 
@@ -32,13 +33,15 @@ This is the default build target.
 
   </target>
 
-  <target name="deploy-to-test-env" depends="init,
-                                copy-package,
-                                create-data-bag-json,
-                                import-data-bag,
-                                remote-chef-client,
-                                deploy-db,
-                                deploy-smoke-test">
+  <target name="deploy-to-test-env"
+    description="Copies the package, does a Chef deploy, imports the DB, and runs a quick smoke test."
+    depends="init,
+              copy-package,
+              create-data-bag-json,
+              import-data-bag,
+              remote-chef-client,
+              deploy-db,
+              deploy-smoke-test">
 
   </target>
 
@@ -51,6 +54,11 @@ This is the default build target.
       capacity
     -->
 
+  <!--
+    @todo Drupal provides multiple xml files, one per testsuite.
+    We need to combine into a single file that contains all testsuites.
+    Then this target could make an html report for it.
+  -->
   <target name="report">
     <phpunitreport infile="artifacts/tests/testsuites.xml"
       format="noframes"
@@ -66,24 +74,22 @@ This is the default build target.
 
   </target>
 
-  <target name="component-tests" depends="init,
-                                simple-simpletest,
-                                fail-on-test-failures">
+  <target name="component-tests"
+    description="Enables simpletest and runs tests."
+    depends="init,
+              simple-simpletest,
+              fail-on-test-failures">
 
   </target>
 
-  <target name="acceptance-tests" depends="init,
-                                codecept-run">
+  <target name="acceptance-tests"
+    description="Runs Codeception tests."
+    depends="init,
+              codecept-run">
 
   </target>
 
-
-<!-- ## Individual targets
-These targets can be executed individually or grouped unless explicitly
-stated as a part of the task.
-
-**As a rule targets without descriptions should not be executed directly.** -->
-
+<!-- ## Individual targets -->
 
   <target name="sql-dump"
     description="Dump the existing database to a sql file."
@@ -97,7 +103,7 @@ stated as a part of the task.
   </target>
 
   <target name="prepare-build-file"
-    description="Downloads build files and replaces springboard versions with commits.">
+    description="Downloads build files and replaces springboard versions with commit hashes.">
 
     <httpget url="https://raw.githubusercontent.com/JacksonRiver/Springboard-Build/${springboard.build.commit}/springboard-core.make"
              dir="artifacts"
@@ -158,11 +164,10 @@ stated as a part of the task.
 
   </target>
 
-
-
   <target name="deploy-db"
-          depends="init,
-                  setup-phing-drush">
+    description="Copies and imports the database to the remote site."
+    depends="init,
+              setup-phing-drush">
 
     <exec command="ssh ${springboard.deploy.remote_host} 'mkdir -p /root/sql'"
       checkreturn="true"
@@ -180,6 +185,7 @@ stated as a part of the task.
   </target>
 
   <target name="copy-package"
+          description="Copies the package to the remote server."
           depends="init">
 
     <exec command="scp ../src/springboard-${springboard.version}.tar.gz ${springboard.deploy.remote_host}:/var/www/springboard-releases"
@@ -188,66 +194,6 @@ stated as a part of the task.
 
   </target>
 
-  <target name="deploy-code"
-          depends="init"
-          description="Deploys a Springboard package to a destination server">
-
-    <if>
-      <equals arg1="${springboard.make.type}" arg2="blank" />
-      <then>
-        <property name="springboard.package.filename"
-                  value="springboard-${springboard.version}.tar.gz" />
-        <property name="springboard.package.dirname"
-                  value="${springboard.version}" />
-      </then>
-      <else>
-        <property name="springboard.package.filename"
-                  value="springboard-${springboard.version}-${springboard.make.type}.tar.gz" />
-        <property name="springboard.package.dirname"
-                  value="${springboard.version}-${springboard.make.type}" />
-      </else>
-    </if>
-
-    <!-- prep the local deploy environment -->
-    <delete dir="build/deploy" />
-    <mkdir dir="build/deploy/${springboard.package.dirname}" />
-
-    <!-- fetch the specified version's package from the server -->
-    <if>
-      <!-- is packages_url a reference to a local file? -->
-      <available file="${springboard.deploy.packages_url}" type="dir" />
-      <then>
-        <!-- untar the local file -->
-        <untar file="${springboard.deploy.packages_url}/${springboard.package.filename}"
-               todir="build/deploy/${springboard.package.dirname}"
-               forceExtract="yes" />
-      </then>
-      <else>
-        <!-- fetch the remote package and untar -->
-        <httpget url="${springboard.deploy.packages_url}/${springboard.package.filename}"
-                 dir="build/deploy" />
-        <untar file="build/deploy/${springboard.package.filename}"
-               todir="build/deploy/${springboard.package.dirname}"
-               forceExtract="yes" />
-      </else>
-    </if>
-
-    <!-- rsync all but the sites/* directories -->
-    <filesync sourcedir="build/deploy/${springboard.package.dirname}"
-              destinationdir="${springboard.deploy.destination}/"
-              excludeFile="deploy.excludesfile"
-              checksum="true"
-              delete="true"
-              verbose="true" />
-
-    <!-- rsync the sites/all directory separately -->
-    <filesync sourcedir="build/deploy/${springboard.package.dirname}/sites/all"
-              destinationdir="${springboard.deploy.destination}/${springboard.package.dirname}/sites/"
-              checksum="true"
-              delete="true"
-              verbose="true" />
-
-  </target>
 
 <target name="create-data-bag-json"
         description="Creates the json file for the data bag."
@@ -268,6 +214,7 @@ stated as a part of the task.
 </target>
 
 <target name="import-data-bag"
+        description="Adds the data bag item json file to the data bag via knife."
         depends="init">
 
       <exec command="knife data bag from file hosted-clients artifacts/${springboard.version}.json"
@@ -277,6 +224,7 @@ stated as a part of the task.
 </target>
 
 <target name="remove-data-bag"
+        description="Remove the data bag item via knife."
         depends="init">
 
       <exec command="knife data bag delete hosted-clients ${springboard.version} -y"
@@ -286,6 +234,7 @@ stated as a part of the task.
 </target>
 
 <target name="remote-chef-client"
+        description="Run chef-client on the remote host."
         depends="init">
 
   <exec command="ssh ${springboard.deploy.remote_host} chef-client -c /etc/chef/knife.rb"
@@ -294,10 +243,7 @@ stated as a part of the task.
 
 </target>
 
-
-<!-- ### PHP linting
-
-Check files for syntax errors. -->
+<!-- ### PHP linting - Check files for syntax errors. -->
   <target name="lint-php"
           description="Check all PHP files for syntax errors using PHPLint"
           depends="init">
@@ -661,110 +607,6 @@ statistics. -->
              classpath="tools" />
   </target>
 
-<!-- ### Drupal Coder review
-
-Review code using [Drupal coder module](http://drupal.org/project/coder).
-
-Configuration of which modules and themes to review is done in
-`build.properties`. If your modules use a common prefix such as
-`yourproject_module1`, `yourproject_module2` you can add all modules with a
-specific prefix. -->
-
-  <target name="coder-review-d7"
-          description="Review code using Drupal 7 Coder module"
-          depends="init, clean, site-install">
-    <!-- Setup properties for running Coder Review.
-         For some reason these properties are not passed correctly through to
-         subtargets when defining them within the phingcall. -->
-    <property name="coder.review.command" value="coder-review"/>
-
-    <!-- Download and enable the Coder Review module -->
-    <phingcall target="enable-module">
-      <property name="project" value="coder"/>
-      <property name="project.version" value="7.x-1.0"/>
-      <property name="module" value="coder_review"/>
-    </phingcall>
-
-    <!-- Perform actual coder review for each style -->
-    <foreach target="coder-review" param="coder.review.type"
-             list="comment,i18n,security,sql,style" />
-  </target>
-
-<!-- #### Perform coder review
-
-This target requires properties set by calling targets coder-review-d6 or
-coder-review-d7.
-
-No need to run `init` here. This target should only be called from parent
-`coder-review-*` targets. -->
-  <target name="coder-review"
-          depends="setup-phing-drush">
-    <!-- Get a list of modules and themes matching the project prefix.
-         These are the ones we are going to review. -->
-    <drush command="pm-list" pipe="true" returnProperty="projects" />
-    <!-- The project list is piped through a file as this seems to be
-         the only way to handle filtering of values in Phing. -->
-    <delete file="${project.logdir}/projects.txt" />
-    <append text="${projects}" destFile="${project.logdir}/projects.txt" />
-
-    <!-- Build a regular expression to match modules based on the
-         set properties. The propery can contain prefixes separated by comma
-         and/or spaces. The expression should be in the format
-         `^(prefix1|prefix2|prefix3)_`. -->
-    <php expression="'^(' . preg_replace('/(\s+|\s*,\s*)/', '|', '${project.code.prefix}') .')_'"
-         returnProperty="project.code.prefix.regex"/>
-
-    <loadfile property="project.code.projects"
-              file="${project.logdir}/projects.txt">
-      <filterchain>
-        <linecontainsregexp>
-          <regexp pattern="${project.code.prefix.regex}" />
-        </linecontainsregexp>
-        <!-- Prefix all lines with a space.
-             We need the space as separator when we strip line breaks -->
-        <prefixlines prefix=" " />
-        <striplinebreaks />
-      </filterchain>
-    </loadfile>
-
-    <!-- Cleanup the custom code property. Commas and multiple whitespace
-         characters are reduced to a single space. -->
-    <php expression="preg_replace('/(\s+|\s*,\s*)/', ' ', '${project.code.custom}')"
-         returnProperty="project.code.custom"/>
-
-    <!-- Execute coder review and output results in XML format-->
-    <drush command="${coder.review.command}" assume="yes"
-           pipe="yes" returnProperty="xml">
-      <param>no-empty</param>
-      <param>checkstyle</param>
-      <param>minor</param>
-      <param>${coder.review.type}</param>
-      <!-- Review all the modules and themes matching the project prefix -->
-      <param>${project.code.projects}</param>
-      <!-- Review additional modules which do not match the prefix -->
-      <param>${project.code.custom}</param>
-    </drush>
-
-    <!-- Write XML output to file -->
-    <property name="coderreview.checkstyle.file"
-              value="${project.logdir}/checkstyle-${coder.review.type}.xml" />
-    <delete file="${coderreview.checkstyle.file}" />
-    <append destFile="${coderreview.checkstyle.file}" text="${xml}" />
-
-    <!-- Convert source from source extract to Category.Type format -->
-    <php function="ucwords" returnProperty="type">
-      <param value="${coder.review.type}"/>
-    </php>
-    <reflexive file="${coderreview.checkstyle.file}">
-      <filterchain>
-        <replaceregexp>
-          <regexp pattern='source=".*"'
-                  replace='source="Drupal.CoderReview.${type}"' />
-        </replaceregexp>
-      </filterchain>
-    </reflexive>
-  </target>
-
 <!-- ### Review code using PHP_CodeSniffer
 
 The purpose and outcome of this target is the same as the coder-review
@@ -869,8 +711,7 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
     </reflexive>
 
     <!--
-    Not sure why it needs to run this way,
-    aside from missing execute permission, but it works.
+    Running the command this way because the permissions get messy.
     -->
     <exec command="cd ../acceptance-tests ; php vendor/codeception/codeception/codecept run --html --xml"
       checkreturn="true"
@@ -1083,7 +924,7 @@ called from `init` target. -->
           depends="setup-phing-drush">
 
     <!-- Delete any prexisting builds -->
-    <delete dir="artifacts/src"/>
+    <delete dir="${drupal.make.dir}"}/>
 
     <drush command="make" assume="yes">
       <param>${drupal.make.file}</param>
@@ -1380,54 +1221,6 @@ Configuration of which installation profile and database to use in done in
      <!-- Set property to prevent unnecessary additional invocations of this
           target -->
      <property name="project.rhino.setup" value="true" />
-   </target>
-
-   <!-- ### Build documentation using Phrocco
-
-Generate documentation for the build script using [Phrocco](https://github.com/oneblackbear/phrocco) and prepare for pushing changes to [GitHub pages](http://pages.github.com/).
-
-To use this task you mush have a version of Phrocco with support for XML
-parsing installed. The task is primarily for template developers. -->
-   <target name="phrocco"
-           depends="clean">
-     <!-- Determine current branch -->
-     <exec command="git status --branch --short"
-           outputProperty="phrocco.code.status" />
-     <php expression="array_shift(explode('...', trim('${phrocco.code.status}', '# '), 2))"
-          returnProperty="phrocco.code.branch"/>
-
-     <!-- Generate documentation in the root build directory -->
-     <exec command="phrocco -i . -o . -l xml"
-           passthru="true" checkreturn="true" />
-     <!-- Checkout the GitHub pages branch -->
-     <exec command="git checkout gh-pages"
-           passthru="true" checkreturn="true"/>
-     <!-- We use the documentation for build.xml and root file so rename
-          it to index.html -->
-     <move file="build.html" tofile="index.html" overwrite="true"
-           haltonerror="true" />
-
-     <property name="phrocco.commit.mode" value=""/>
-     <!-- If the local documentation branch is ahead then we have other
-          changes which have not been pushed yet. These have probably also
-          been generated by this script so amend these changes. -->
-     <exec command="git status --branch --short"
-           outputProperty="phrocco.docs.status" />
-     <if>
-       <contains string="${phrocco.docs.status}" substring="[ahead"/>
-       <then>
-         <property name="phrocco.commit.mode" value="--amend"
-                   override="true" />
-       </then>
-     </if>
-
-     <!-- Commit the changes -->
-     <exec command="git commit --all -m 'Documentation update' ${phrocco.commit.mode}"
-           passthru="true" checkreturn="true"/>
-
-     <!-- Return to the main branch -->
-     <exec command="git checkout ${phrocco.code.branch}"
-           passthru="true" checkreturn="true"/>
    </target>
 
 </project>
