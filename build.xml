@@ -1249,6 +1249,8 @@ Configuration of which installation profile and database to use in done in
            mode="0755" failonerror="true"/>
     <chmod file="artifacts/src/sites/default/default.settings.php"
            mode="0644" failonerror="true"/>
+    <chmod file="artifacts/src/sites/default/settings.php"
+           mode="0644" failonerror="true"/>
 
     <!-- Set property to prevent target from being executed multiple times -->
     <property name="project.installed" value="true"/>
