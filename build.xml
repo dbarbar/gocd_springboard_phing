@@ -813,7 +813,7 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} en simpletest -y'"
       checkreturn="true"
       logoutput="true" />
-    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run ${springboard.tests} --xml=/root/tests/${springboard.version}'"
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run \\"${springboard.tests}\\" --xml=/root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
     <exec command="scp -r ${springboard.deploy.remote_host}:/root/tests/${springboard.version} artifacts/tests"
