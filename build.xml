@@ -924,7 +924,7 @@ called from `init` target. -->
           depends="setup-phing-drush">
 
     <!-- Delete any prexisting builds -->
-    <delete dir="${drupal.make.dir}"}/>
+    <delete dir="${drupal.make.dir}" />
 
     <drush command="make" assume="yes">
       <param>${drupal.make.file}</param>
