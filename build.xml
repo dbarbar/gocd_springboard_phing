@@ -85,8 +85,10 @@ This is the default build target.
   <target name="springboard-core-component-tests"
     description="Enables simpletest and runs Springboard core tests."
     depends="init,
+              enable-simpletest,
               get-springboard-simpletests,
               simple-simpletest,
+              disable-simpletest,
               fail-on-test-failures">
 
   </target>
@@ -686,13 +688,6 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
             logoutput="true" />
     </target>
 
-
-  <target name="enable-simpletest" depends="init">
-    <phingcall target="enable-module">
-      <property name="module" value="simpletest"/>
-    </phingcall>
-  </target>
-
   <target name="get-all-simpletests" depends="init">
 
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run --fields=class --format=csv > /root/tests/all-tests-${springboard.version}.csv"
@@ -708,7 +703,8 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
   </target>
 
-  <target name="get-springboard-simpletests" depends="init">
+  <target name="get-springboard-simpletests"
+    depends="init">
 
     <exec command="scp tools/springboard_core_tests.php ${springboard.deploy.remote_host}:/root/tests/"
       checkreturn="true"
@@ -721,6 +717,18 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
   </target>
 
+  <target name="enable-simpletest" depends="init">
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} en simpletest -y ; drush @${springboard.version} test-clean -y'"
+      checkreturn="true"
+      logoutput="true" />
+  </target>
+
+  <target name="disable-simpletest" depends="init">
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} dis simpletest -y ; drush @${springboard.version} pm-uninstall simpletest -y'"
+      checkreturn="true"
+      logoutput="true" />
+  </target>
+
   <target name="simple-simpletest"
     depends="init">
 
@@ -729,16 +737,11 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
     <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/tests/${springboard.version} ; mkdir -p /root/tests/${springboard.version} ; chmod 777 /root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
-    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} en simpletest -y ; drush @${springboard.version} test-clean -y'"
-      checkreturn="true"
-      logoutput="true" />
+
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run ${springboard.tests} --xml=/root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
     <exec command="scp -r ${springboard.deploy.remote_host}:/root/tests/${springboard.version} artifacts/tests"
-      checkreturn="true"
-      logoutput="true" />
-    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} dis simpletest -y ; drush @${springboard.version} pm-uninstall simpletest -y'"
       checkreturn="true"
       logoutput="true" />
 
