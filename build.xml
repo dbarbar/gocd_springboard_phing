@@ -693,22 +693,41 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
   </target>
 
-  <target name="codecept-run"
-    depends="init" >
+  <target name="setup-codeception"
+    depends="init">
 
-    <reflexive>
-    <fileset dir="../acceptance-tests/tests">
-      <include pattern="acceptance.suite.yml" />
-    </fileset>
-    <filterchain>
-      <replaceregexp>
-        <regexp
-          pattern="url: (.+)"
-          replace="url: http://${springboard.deploy.domain}"
-          />
-        </replaceregexp>
+    <exec command="gunzip ../sql/${springboard.version}.sql.gz"
+      checkreturn="true"
+      logoutput="true" />
+
+    <copy file="resources/acceptance.suite.yml"
+          tofile="../acceptance-tests/tests/acceptance.suite.yml"
+          overwrite="true">
+      <filterchain>
+        <replacetokens begintoken="%" endtoken="%">
+          <token key="URL" value="http://${springboard.deploy.domain}" />
+          <token key="BROWSER" value="firefox" />
+        </replacetokens>
       </filterchain>
-    </reflexive>
+    </copy>
+
+    <copy file="resources/codeception.yml"
+          tofile="../acceptance-tests/codeception.yml"
+          overwrite="true">
+      <filterchain>
+        <replacetokens begintoken="%" endtoken="%">
+          <token key="DSN" value="mysql:host=${springboard.deploy.domain};dbname=${springboard.version}" />
+          <token key="USER" value="${springboard.version}" />
+          <token key="PASSWORD" value="${springboard.db_password}" />
+          <token key="DUMP" value="../sql/${springboard.version}.sql" />
+        </replacetokens>
+      </filterchain>
+    </copy>
+
+  </target>
+
+  <target name="codecept-run"
+    depends="init, setup-codeception">
 
     <!--
     Running the command this way because the permissions get messy.

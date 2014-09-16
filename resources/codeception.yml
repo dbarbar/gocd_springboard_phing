@@ -1,0 +1,7 @@
+modules:
+    config:
+        Db:
+            dsn: %DSN%
+            user: %USER%
+            password: %PASSWORD%
+            dump: %DUMP%
