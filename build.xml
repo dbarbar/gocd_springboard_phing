@@ -644,15 +644,41 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
     </phingcall>
   </target>
 
+  <target name="get-all-simpletests" depends="init">
+
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run --fields=class --format=csv > /root/tests/all-tests-${springboard.version}.csv"
+      checkreturn="true"
+      logoutput="true" />
+
+    <exec command="scp ${springboard.deploy.remote_host}:/root/tests/all-tests-${springboard.version}.csv artifacts/all-tests.csv" />
+
+    <exec command="php tools/parse_tests.php"
+      checkreturn="true"
+      logoutput="true"
+      outputProperty="springboard.tests" />
+
+  </target>
+
+  <target name="get-springboard-simpletests" depends="init">
+
+    <exec command="scp tools/springboard_core_tests.php ${springboard.deploy.remote_host}:/root/tests/" />
+
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} scr /root/tests/springboard_core_tests.php"
+      outputProperty="springboard.tests"
+      checkreturn="true"
+      logoutput="true" />
+
+  </target>
+
   <target name="simple-simpletest"
     depends="init">
 
     <delete dir="artifacts/tests" />
     <mkdir dir="artifacts/tests" />
-    <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/tests/${springboard.version} ; mkdir -p /root/tests/${springboard.version}'"
+    <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/tests/${springboard.version} ; mkdir -p /root/tests/${springboard.version} ; chmod 777 /root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
-    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} en simpletest -y'"
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} en simpletest -y ; drush @${springboard.version} test-clean -y'"
       checkreturn="true"
       logoutput="true" />
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run ${springboard.tests} --xml=/root/tests/${springboard.version}'"
