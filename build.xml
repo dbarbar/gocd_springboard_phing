@@ -98,6 +98,46 @@ This is the default build target.
 
   </target>
 
+  <!-- @todo This should happen after untarring the package and specifying a version to use. Afterwards tar the package back up for distribution. -->
+  <target name="bump-version"
+    depends="init">
+
+    <!-- Update springboard module versions -->
+    <reflexive>
+      <fileset refid="springboard.modules.info" />
+      <filterchain>
+        <replaceregexp>
+          <regexp pattern='version = 7.x-4.x-dev'
+                  replace='version = ${springboard.version}' />
+        </replaceregexp>
+      </filterchain>
+    </reflexive>
+
+    <!-- Update springboard theme versions -->
+    <reflexive>
+      <fileset refid="springboard.themes.info" />
+      <filterchain>
+        <replaceregexp>
+          <regexp pattern='version = 7.x-4.x-dev'
+                  replace='version = ${springboard.version}' />
+        </replaceregexp>
+      </filterchain>
+    </reflexive>
+
+    <!-- Update springboard install profile version -->
+    <reflexive>
+      <fileset refid="springboard.profiles.info" />
+      <filterchain>
+        <replaceregexp>
+          <regexp pattern='version = 7.x-4.x-dev'
+                  replace='version = ${springboard.version}' />
+        </replaceregexp>
+      </filterchain>
+    </reflexive>
+
+  </target>
+
+
 <!-- ## Individual targets -->
 
   <target name="sql-dump"
@@ -670,7 +710,9 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
   <target name="get-springboard-simpletests" depends="init">
 
-    <exec command="scp tools/springboard_core_tests.php ${springboard.deploy.remote_host}:/root/tests/" />
+    <exec command="scp tools/springboard_core_tests.php ${springboard.deploy.remote_host}:/root/tests/"
+      checkreturn="true"
+      logoutput="true" />
 
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} scr /root/tests/springboard_core_tests.php"
       outputProperty="springboard.tests"
