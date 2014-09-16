@@ -97,7 +97,7 @@ This is the default build target.
 
     <drush command="sql-dump" assume="yes">
       <option name="gzip"></option>
-      <option name="result-file">../db-${springboard.build_number}.sql</option>
+      <option name="result-file">../${springboard.build_number}.sql</option>
     </drush>
 
   </target>
@@ -172,10 +172,10 @@ This is the default build target.
     <exec command="ssh ${springboard.deploy.remote_host} 'mkdir -p /root/sql'"
       checkreturn="true"
       logoutput="true" />
-    <exec command="scp ../sql/db-${springboard.version}.sql.gz ${springboard.deploy.remote_host}:/root/sql/"
+    <exec command="scp ../sql/${springboard.version}.sql.gz ${springboard.deploy.remote_host}:/root/sql/"
       checkreturn="true"
       logoutput="true" />
-    <exec command="ssh ${springboard.deploy.remote_host} 'zcat /root/sql/db-${springboard.version}.sql.gz | drush @${springboard.version} sql-cli'"
+    <exec command="ssh ${springboard.deploy.remote_host} 'zcat /root/sql/${springboard.version}.sql.gz | drush @${springboard.version} sql-cli'"
       checkreturn="true"
       logoutput="true" />
     <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/sql'"
