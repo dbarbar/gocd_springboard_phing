@@ -82,6 +82,15 @@ This is the default build target.
 
   </target>
 
+  <target name="springboard-core-component-tests"
+    description="Enables simpletest and runs Springboard core tests."
+    depends="init,
+              get-springboard-simpletests,
+              simple-simpletest,
+              fail-on-test-failures">
+
+  </target>
+
   <target name="acceptance-tests"
     description="Runs Codeception tests."
     depends="init,
