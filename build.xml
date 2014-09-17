@@ -711,7 +711,6 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
       logoutput="true" />
 
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} scr /root/tests/springboard_core_tests.php > /root/tests/all-tests-${springboard.version}.csv'"
-      outputProperty="springboard.tests"
       checkreturn="true"
       logoutput="true" />
 

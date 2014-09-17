@@ -21,7 +21,7 @@ function main() {
       }
     }
   }
-  print implode(',', $tests_to_run);
+  print implode("\n", $tests_to_run);
 }
 
 main();

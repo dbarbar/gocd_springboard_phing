@@ -1,8 +1,8 @@
 <?php
 
 function main() {
-    $all_tests_file = '../artifacts/all-tests.csv';
-    $blacklist_file = 'tests_blacklist.csv';
+    $all_tests_file = __DIR__ . '/../artifacts/all-tests.csv';
+    $blacklist_file = __DIR__ . '/tests_blacklist.csv';
 
     $blt = new blacklistTests($all_tests_file, $blacklist_file);
     print $blt->testsToRun();
