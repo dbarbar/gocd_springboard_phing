@@ -55,6 +55,26 @@ This is the default build target.
       capacity
     -->
 
+  <target name="springboard-core-component-tests"
+    description="Enables simpletest and runs Springboard core tests."
+    depends="init,
+              clean,
+              enable-springboard-tests,
+              simpletest-springboard-tests,
+              disable-springboard-tests,
+              fail-on-test-failures">
+
+  </target>
+
+  <target name="acceptance-tests"
+    description="Runs Codeception tests."
+    depends="init,
+              clean,
+              codecept-run">
+
+  </target>
+
+
   <!--
     @todo Drupal provides multiple xml files, one per testsuite.
     We need to combine into a single file that contains all testsuites.
@@ -72,37 +92,6 @@ This is the default build target.
     <exec command="curl --max-time 10 http://${springboard.deploy.domain} | grep '${springboard.deploy.smoke_test_text}'"
       logoutput="true"
       checkreturn="true" />
-
-  </target>
-
-  <target name="component-tests"
-    description="Enables simpletest and runs tests."
-    depends="init,
-              clean,
-              enable-simpletest,
-              simple-simpletest,
-              disable-simpletest,
-              fail-on-test-failures">
-
-  </target>
-
-  <target name="springboard-core-component-tests"
-    description="Enables simpletest and runs Springboard core tests."
-    depends="init,
-              clean,
-              enable-simpletest,
-              get-springboard-simpletests,
-              simple-simpletest,
-              disable-simpletest,
-              fail-on-test-failures">
-
-  </target>
-
-  <target name="acceptance-tests"
-    description="Runs Codeception tests."
-    depends="init,
-              clean,
-              codecept-run">
 
   </target>
 
@@ -709,41 +698,27 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
   </target>
 
-  <target name="get-springboard-simpletests"
-    depends="init">
+  <target name="enable-springboard-tests" depends="init">
 
-    <exec command="scp tools/springboard_core_tests.php ${springboard.deploy.remote_host}:/root/tests/"
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} en springboard_tests -y'"
       checkreturn="true"
       logoutput="true" />
-
-    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} scr /root/tests/springboard_core_tests.php > /root/tests/all-tests-${springboard.version}.csv'"
-      checkreturn="true"
-      logoutput="true" />
-
-    <exec command="scp ${springboard.deploy.remote_host}:/root/tests/all-tests-${springboard.version}.csv artifacts/all-tests.csv"
-      checkreturn="true"
-      logoutput="true" />
-
-    <exec command="php tools/parse_tests.php"
-      checkreturn="true"
-      logoutput="true"
-      outputProperty="springboard.tests" />
 
   </target>
 
-  <target name="enable-simpletest" depends="init">
-    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} en simpletest -y ; drush @${springboard.version} test-clean -y'"
+  <target name="disable-springboard-tests" depends="init">
+
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} dis springboard_tests -y ; drush @${springboard.version} pm-uninstall springboard_tests -y'"
       checkreturn="true"
       logoutput="true" />
-  </target>
 
-  <target name="disable-simpletest" depends="init">
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} dis simpletest -y ; drush @${springboard.version} pm-uninstall simpletest -y'"
       checkreturn="true"
       logoutput="true" />
+
   </target>
 
-  <target name="simple-simpletest"
+  <target name="simpletest-springboard-tests"
     depends="init">
 
     <delete dir="artifacts/tests" />
@@ -752,9 +727,10 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
       checkreturn="true"
       logoutput="true" />
 
-    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run ${springboard.tests} --xml=/root/tests/${springboard.version}'"
+    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} sb-test-run springboard --xml=/root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
+
     <exec command="scp -r ${springboard.deploy.remote_host}:/root/tests/${springboard.version} artifacts/tests"
       checkreturn="true"
       logoutput="true" />
