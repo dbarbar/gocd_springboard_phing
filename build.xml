@@ -224,7 +224,7 @@ This is the default build target.
     <exec command="ssh ${springboard.deploy.remote_host} 'zcat /root/sql/${springboard.version}.sql.gz | drush @${springboard.version} sql-cli'"
       checkreturn="true"
       logoutput="true" />
-    <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/sql'"
+    <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/sql/${springboard.version}.sql.gz'"
       checkreturn="true"
       logoutput="true" />
 
@@ -683,21 +683,6 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
             logoutput="true" />
     </target>
 
-  <target name="get-all-simpletests" depends="init">
-
-    <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} test-run --fields=class --format=csv > /root/tests/all-tests-${springboard.version}.csv"
-      checkreturn="true"
-      logoutput="true" />
-
-    <exec command="scp ${springboard.deploy.remote_host}:/root/tests/all-tests-${springboard.version}.csv artifacts/all-tests.csv" />
-
-    <exec command="php tools/parse_tests.php"
-      checkreturn="true"
-      logoutput="true"
-      outputProperty="springboard.tests" />
-
-  </target>
-
   <target name="enable-springboard-tests" depends="init">
 
     <exec command="ssh ${springboard.deploy.remote_host} 'drush @${springboard.version} en springboard_tests -y'"
@@ -723,6 +708,7 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
 
     <delete dir="artifacts/tests" />
     <mkdir dir="artifacts/tests" />
+
     <exec command="ssh ${springboard.deploy.remote_host} 'rm -rf /root/tests/${springboard.version} ; mkdir -p /root/tests/${springboard.version} ; chmod 777 /root/tests/${springboard.version}'"
       checkreturn="true"
       logoutput="true" />
