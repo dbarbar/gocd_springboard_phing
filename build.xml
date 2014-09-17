@@ -36,6 +36,7 @@ This is the default build target.
   <target name="deploy-to-test-env"
     description="Copies the package, does a Chef deploy, imports the DB, and runs a quick smoke test."
     depends="init,
+              clean,
               copy-package,
               create-data-bag-json,
               import-data-bag,
@@ -77,7 +78,10 @@ This is the default build target.
   <target name="component-tests"
     description="Enables simpletest and runs tests."
     depends="init,
+              clean,
+              enable-simpletest,
               simple-simpletest,
+              disable-simpletest,
               fail-on-test-failures">
 
   </target>
@@ -85,6 +89,7 @@ This is the default build target.
   <target name="springboard-core-component-tests"
     description="Enables simpletest and runs Springboard core tests."
     depends="init,
+              clean,
               enable-simpletest,
               get-springboard-simpletests,
               simple-simpletest,
@@ -96,6 +101,7 @@ This is the default build target.
   <target name="acceptance-tests"
     description="Runs Codeception tests."
     depends="init,
+              clean,
               codecept-run">
 
   </target>
