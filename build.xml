@@ -714,7 +714,9 @@ Consequently `coder-review-d6/7` and not `phpcs` is used for the main targets.
       checkreturn="true"
       logoutput="true" />
 
-    <exec command="scp ${springboard.deploy.remote_host}:/root/tests/all-tests-${springboard.version}.csv artifacts/all-tests.csv" />
+    <exec command="scp ${springboard.deploy.remote_host}:/root/tests/all-tests-${springboard.version}.csv artifacts/all-tests.csv"
+      checkreturn="true"
+      logoutput="true" />
 
     <exec command="php tools/parse_tests.php"
       checkreturn="true"
